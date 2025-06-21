@@ -1,0 +1,100 @@
+.vertical-timeline {
+  span {
+    color: white;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  p {
+    color: rgb(39, 40, 34);
+  }
+}
+
+.vertical-timeline-element {
+  p {
+    color: rgb(39, 40, 34);
+  }
+
+  h3 {
+    color: rgb(39, 40, 34);
+  }
+
+  h4 {
+    color: rgb(39, 40, 34);
+  }
+
+  span {
+    color: rgb(39, 40, 34);
+  }
+
+  .vertical-timeline-element-date {
+    color: white;
+    transition: font-weight 0.3s ease;
+  }
+
+  &-content {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+.vertical-timeline-element--work {
+  transition: all 0.3s ease;
+}
+
+.svg-inline--fa {
+  color: white;
+}
+
+@media screen and (max-width: 1170px) {
+  .vertical-timeline-element {
+    .vertical-timeline-element-date {
+      color: rgb(39, 40, 34);
+      transition: font-weight 0.3s ease;
+    }
+  }
+}
+
+// Mobile-specific fixes to prevent jumping during animations
+@media screen and (max-width: 768px) {
+  #history {
+    // Prevent layout shifts during timeline animations
+    overflow: hidden;
+    
+    .items-container {
+      // Ensure stable positioning
+      position: relative;
+      transform: translateZ(0); // Force hardware acceleration
+    }
+    
+    .vertical-timeline {
+      // Disable or reduce animations on mobile to prevent jumping
+      .vertical-timeline-element {
+        transition: none !important;
+        
+        &-content {
+          transition: none !important;
+          transform: none !important;
+        }
+        
+        &-icon {
+          transition: none !important;
+        }
+      }
+    }
+  }
+}
+
+// Alternative: Reduce animation intensity on mobile
+@media screen and (max-width: 768px) {
+  .vertical-timeline-element {
+    transition: opacity 0.2s ease !important;
+    
+    &-content {
+      transition: opacity 0.2s ease !important;
+      transform: none !important;
+    }
+  }
+}
