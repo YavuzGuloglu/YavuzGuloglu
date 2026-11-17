@@ -210,7 +210,7 @@ export const nebulaFragment = /* glsl */ `
     float band = exp(-pow(d.y * 2.2 + 0.3, 2.0));
     vec3 a = vec3(0.10, 0.04, 0.22);
     vec3 b = vec3(0.02, 0.10, 0.20);
-    vec3 col = mix(a, b, smoothstep(0.3, 0.7, n)) * smoothstep(0.35, 0.8, n) * (0.35 + band);
+    vec3 col = mix(a, b, smoothstep(0.3, 0.7, n)) * smoothstep(0.35, 0.8, n) * (0.75 + band * 0.8);
     gl_FragColor = vec4(col * 0.2, 1.0);
     #include <colorspace_fragment>
   }

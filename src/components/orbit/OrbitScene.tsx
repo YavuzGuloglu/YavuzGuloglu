@@ -15,7 +15,7 @@ type SceneProps = {
   onSelect: (id: SectionId | null) => void;
   compact: boolean;
   reducedMotion: boolean;
-  /** phones / iOS: no nebula, cheaper shaders, lower pixel ratio */
+  /** phones / iOS: cheaper shaders, lower pixel ratio, fewer particles */
   lowPower: boolean;
   onContextLost: () => void;
 };
@@ -104,13 +104,39 @@ function AsteroidBelt({ inner, outer, count, timeScale }: { inner: number; outer
   );
 }
 
-function Nebula() {
-  return (
-    <mesh raycast={() => null}>
-      <sphereGeometry args={[180, 32, 32]} />
-      <shaderMaterial vertexShader={nebulaVertex} fragmentShader={nebulaFragment} side={THREE.BackSide} depthWrite={false} />
-    </mesh>
-  );
+/**
+ * The nebula never changes, so it is rendered once into a cube map at
+ * startup and used as the scene background. Drawing the noise shader on
+ * every pixel of every frame was too heavy for phones.
+ */
+function NebulaBackground({ resolution }: { resolution: number }) {
+  const { gl, scene } = useThree();
+
+  useEffect(() => {
+    const target = new THREE.WebGLCubeRenderTarget(resolution, { generateMipmaps: true });
+    const cubeCamera = new THREE.CubeCamera(1, 500, target);
+    const nebulaScene = new THREE.Scene();
+    const geometry = new THREE.SphereGeometry(180, 32, 32);
+    const material = new THREE.ShaderMaterial({
+      vertexShader: nebulaVertex,
+      fragmentShader: nebulaFragment,
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+    nebulaScene.add(new THREE.Mesh(geometry, material));
+    cubeCamera.update(gl, nebulaScene);
+
+    const previous = scene.background;
+    scene.background = target.texture;
+    geometry.dispose();
+    material.dispose();
+    return () => {
+      scene.background = previous;
+      target.dispose();
+    };
+  }, [gl, scene, resolution]);
+
+  return null;
 }
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -242,8 +268,8 @@ export default function OrbitScene({
       {/* soft fill so the astronaut and ship read even when backlit by the sun */}
       <hemisphereLight intensity={0.55} color="#c3ccff" groundColor="#2a1f3a" />
       <SimClock selected={selected} reducedMotion={reducedMotion} timeScale={timeScale} />
-      {!lowPower && <Nebula />}
-      <Stars radius={120} depth={60} count={lowPower ? 1500 : 5000} factor={4} saturation={0.2} fade speed={reducedMotion ? 0 : 0.6} />
+      <NebulaBackground resolution={lowPower ? 256 : 512} />
+      <Stars radius={120} depth={60} count={lowPower ? 3500 : 5000} factor={4} saturation={0.2} fade speed={reducedMotion ? 0 : 0.6} />
       <Sun lowPower={lowPower} />
       <Astronaut
         selected={selected}
