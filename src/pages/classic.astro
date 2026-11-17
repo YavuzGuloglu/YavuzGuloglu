@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import { education, experience, profile, projects, skillGroups } from '../data/profile';
+---
+
+<Base title={`${profile.name} · Portfolio`}>
+  <main class="mx-auto max-w-3xl px-5 py-14 sm:py-20" style="--accent:#ffb347">
+    <header class="flex items-center justify-between gap-4">
+      <a href="/" class="hud-link">← Orbit view</a>
+    </header>
+
+    <section class="mt-12">
+      <p class="eyebrow">{profile.location}</p>
+      <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">{profile.name}</h1>
+      <p class="mt-2 text-xl text-white/70">{profile.title}</p>
+      <p class="mt-6 leading-relaxed text-white/75">{profile.summary}</p>
+      <p class="mt-3 leading-relaxed text-white/60">{profile.summaryExtra}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a class="btn btn--primary" href={`mailto:${profile.email}`}>Get in touch</a>
+        <a class="btn" href={profile.links.github} target="_blank" rel="noreferrer">GitHub</a>
+        <a class="btn" href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+      </div>
+    </section>
+
+    <section class="mt-16" id="experience">
+      <h2 class="eyebrow" style="--accent:#ff8a5c">Experience</h2>
+      <ol class="mt-6 space-y-8">
+        {experience.map((job) => (
+          <li>
+            <p class="font-mono text-xs uppercase tracking-wider text-white/50">{job.period}</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">{job.company}</h3>
+            <p class="text-sm text-white/70">{job.role} · {job.location}</p>
+            <p class="mt-2 text-sm leading-relaxed text-white/70">{job.summary}</p>
+            {job.highlights.length > 0 && (
+              <ul class="mt-2 list-disc space-y-1 pl-4 text-sm leading-relaxed text-white/60">
+                {job.highlights.map((h) => <li>{h}</li>)}
+              </ul>
+            )}
+            {job.stack.length > 0 && (
+              <div class="mt-3 flex flex-wrap gap-1.5">{job.stack.map((s) => <span class="chip">{s}</span>)}</div>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="mt-16" id="skills">
+      <h2 class="eyebrow" style="--accent:#9d85ff">Skills</h2>
+      <div class="mt-6 space-y-6">
+        {skillGroups.map((g) => (
+          <div>
+            <h3 class="text-lg font-semibold text-white">{g.title}</h3>
+            <p class="mt-1 text-sm text-white/60">{g.description}</p>
+            <div class="mt-3 flex flex-wrap gap-1.5">{g.skills.map((s) => <span class="chip">{s}</span>)}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="mt-16" id="projects">
+      <h2 class="eyebrow" style="--accent:#5ef2df">Projects</h2>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        {projects.map((p) => (
+          <a href={p.url} target="_blank" rel="noreferrer" class="project-card group">
+            <div class="aspect-[16/10] overflow-hidden rounded-lg bg-white/5">
+              <img src={p.image} alt={`${p.name} screenshot`} loading="lazy" class="h-full w-full object-cover" />
+            </div>
+            <h3 class="mt-3 font-semibold text-white">{p.name} ↗</h3>
+            <p class="mt-1 text-sm text-white/60">{p.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="mt-16" id="education">
+      <h2 class="eyebrow" style="--accent:#8ec5ff">Education</h2>
+      <div class="mt-6 space-y-4">
+        {education.map((e) => (
+          <div>
+            <p class="font-mono text-xs uppercase tracking-wider text-white/50">{e.period}</p>
+            <h3 class="mt-1 font-semibold text-white">{e.school}</h3>
+            <p class="text-sm text-white/70">{e.degree} · {e.field}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <footer class="mt-20 border-t border-white/10 pt-6 text-sm text-white/40">
+      Designed &amp; built by {profile.name} with Astro and Three.js.
+    </footer>
+  </main>
+</Base>

@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import OrbitApp from '../components/orbit/OrbitApp';
+import { profile } from '../data/profile';
+---
+
+<Base>
+  <!-- Readable for search engines and screen readers; the 3D scene is decoration on top. -->
+  <div class="sr-only">
+    <h1>{profile.name}, {profile.title}</h1>
+    <p>{profile.summary}</p>
+    <a href="/classic">Read the full portfolio as a classic page</a>
+  </div>
+  <OrbitApp client:only="react" />
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=/classic" />
+  </noscript>
+</Base>
