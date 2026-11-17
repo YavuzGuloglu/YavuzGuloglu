@@ -5,7 +5,7 @@ export type SectionId = 'about' | 'experience' | 'skills' | 'projects' | 'educat
 export type SurfaceType = 'rocky' | 'gas' | 'ice';
 
 export type PlanetConfig = {
-  id: Exclude<SectionId, 'about'>;
+  id: Exclude<SectionId, 'about' | 'contact'>;
   label: string;
   caption: string;
   radius: number;
@@ -24,6 +24,7 @@ export type PlanetConfig = {
 export const SUN_RADIUS = 1.7;
 
 // Each planet is one part of my story. Moons = items inside that section.
+// I'm the astronaut drifting around the sun; the ship at the screen edge is Contact.
 export const planets: PlanetConfig[] = [
   {
     id: 'experience',
@@ -82,25 +83,12 @@ export const planets: PlanetConfig[] = [
     atmosphere: '#8ec5ff',
     moons: education.length,
   },
-  {
-    id: 'contact',
-    label: 'Contact',
-    caption: 'Say hello',
-    radius: 0.5,
-    distance: 16.9,
-    speed: 0.085,
-    phase: 3.2,
-    tilt: 0.25,
-    surface: 'rocky',
-    colors: ['#0e3324', '#2fbf71', '#c9ffd9'],
-    atmosphere: '#63ffa6',
-    moons: 1,
-  },
 ];
 
-export const ORDER: SectionId[] = ['about', ...planets.map((p) => p.id)];
+export const ORDER: SectionId[] = ['about', ...planets.map((p) => p.id), 'contact'];
 
 export const LABELS: Record<SectionId, string> = {
   about: 'About',
+  contact: 'Contact',
   ...Object.fromEntries(planets.map((p) => [p.id, p.label])),
 } as Record<SectionId, string>;

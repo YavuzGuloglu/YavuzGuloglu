@@ -7,6 +7,7 @@ const OrbitScene = lazy(() => import('./OrbitScene'));
 
 const ACCENTS: Record<SectionId, string> = {
   about: '#ffb347',
+  contact: '#b98bff',
   ...Object.fromEntries(planets.map((p) => [p.id, p.atmosphere])),
 } as Record<SectionId, string>;
 

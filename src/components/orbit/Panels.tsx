@@ -8,7 +8,7 @@ function Chip({ children }: { children: string }) {
 function About() {
   return (
     <>
-      <p className="eyebrow">The center of this system</p>
+      <p className="eyebrow">The astronaut · About</p>
       <h2 className="panel-title">{profile.name}</h2>
       <p className="text-lg text-white/80">
         {profile.title} · {profile.location}
@@ -141,8 +141,8 @@ function ContactPanel() {
   ];
   return (
     <>
-      <p className="eyebrow">Planet 05 · Contact</p>
-      <h2 className="panel-title">Let's connect</h2>
+      <p className="eyebrow">The ship · Contact</p>
+      <h2 className="panel-title">Come aboard</h2>
       <p className="mt-3 leading-relaxed text-white/70">
         Open to interesting frontend work and good conversations. Reach out through any of these channels.
       </p>

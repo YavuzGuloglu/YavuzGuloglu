@@ -170,11 +170,11 @@ html:has(.orbit-root) body {
   opacity: 0;
   transition: opacity 0.3s;
 }
-.planet-label--sun .planet-label__name {
+.planet-label--hero .planet-label__name {
   font-size: 15px;
 }
 .planet-label.is-hovered .planet-label__caption,
-.planet-label--sun .planet-label__caption {
+.planet-label--hero .planet-label__caption {
   opacity: 1;
 }
 .planet-label.is-hovered {

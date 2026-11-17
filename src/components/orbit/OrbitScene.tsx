@@ -1,10 +1,11 @@
-import { Html, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
-import { memo, useEffect, useMemo, useRef, type MutableRefObject, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, type MutableRefObject, type RefObject } from 'react';
 import * as THREE from 'three';
-import { profile } from '../../data/profile';
+import { Astronaut, ASTRONAUT_RADIUS } from './Astronaut';
 import { Planet } from './Planet';
+import { CameraSpace, Ship } from './Ship';
 import { planets, SUN_RADIUS, type SectionId } from './sections';
 import { coronaFragment, nebulaFragment, nebulaVertex, sunFragment, sunVertex } from './shaders';
 
@@ -17,33 +18,21 @@ type SceneProps = {
   reducedMotion: boolean;
 };
 
-function Sun({ hovered, selected, onHover, onSelect }: Pick<SceneProps, 'hovered' | 'selected' | 'onHover' | 'onSelect'>) {
+/** The sun is just the light source now; I'm the astronaut. */
+function Sun() {
   const uniforms = useMemo(() => ({ uTime: { value: 0 }, uHover: { value: 0 } }), []);
   const corona = useMemo(() => ({ uTime: { value: 0 } }), []);
   const mesh = useRef<THREE.Mesh>(null);
-  const active = hovered === 'about' || selected === 'about';
 
   useFrame((state, dt) => {
     uniforms.uTime.value = state.clock.elapsedTime;
     corona.uTime.value = state.clock.elapsedTime;
-    uniforms.uHover.value = THREE.MathUtils.damp(uniforms.uHover.value, active ? 1 : 0, 5, dt);
     if (mesh.current) mesh.current.rotation.y += dt * 0.03;
   });
 
   return (
     <group>
-      <mesh
-        ref={mesh}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          onHover('about');
-        }}
-        onPointerOut={() => onHover(null)}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect('about');
-        }}
-      >
+      <mesh ref={mesh} raycast={() => null}>
         <sphereGeometry args={[SUN_RADIUS, 96, 96]} />
         <shaderMaterial vertexShader={sunVertex} fragmentShader={sunFragment} uniforms={uniforms} toneMapped={false} />
       </mesh>
@@ -64,21 +53,6 @@ function Sun({ hovered, selected, onHover, onSelect }: Pick<SceneProps, 'hovered
     </group>
   );
 }
-
-const SunLabel = memo(function SunLabel({ dimmed, portal }: { dimmed: boolean; portal: RefObject<HTMLElement> }) {
-  return (
-    <group position={[0, -(SUN_RADIUS + 1.15), 0]}>
-      <Html center zIndexRange={[10, 0]} style={LABEL_STYLE} portal={portal}>
-        <div className={`planet-label planet-label--sun ${dimmed ? 'is-dimmed' : ''}`}>
-          <span className="planet-label__name">{profile.name}</span>
-          <span className="planet-label__caption">{profile.title}</span>
-        </div>
-      </Html>
-    </group>
-  );
-});
-
-const LABEL_STYLE = { pointerEvents: 'none' } as const;
 
 function AsteroidBelt({ inner, outer, count, timeScale }: { inner: number; outer: number; count: number; timeScale: MutableRefObject<number> }) {
   const ref = useRef<THREE.InstancedMesh>(null);
@@ -116,7 +90,7 @@ function AsteroidBelt({ inner, outer, count, timeScale }: { inner: number; outer
     <group ref={group}>
       <instancedMesh ref={ref} args={[undefined, undefined, count]} raycast={() => null}>
         <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="#9a8f86" roughness={1} flatShading />
+        <meshStandardMaterial color="#6f665f" roughness={1} flatShading />
       </instancedMesh>
     </group>
   );
@@ -158,7 +132,9 @@ function CameraRig({
 
   useFrame((_, dt) => {
     const d = Math.min(dt, 0.05);
-    if (!selected) {
+    // the ship comes to the camera, so Contact keeps the overview shot
+    if (!selected || selected === 'contact') {
+      const parallax = selected ? 0 : 1;
       // pull back far enough that the outermost orbit fits the screen width
       const cam = camera as THREE.PerspectiveCamera;
       const tanHalf = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
@@ -170,29 +146,24 @@ function CameraRig({
         .set(0, compact ? 0.75 : 0.42, 1)
         .normalize()
         .multiplyScalar(homeDist)
-        .add(new THREE.Vector3(pointer.x * 2, pointer.y * 1.2, 0));
+        .add(new THREE.Vector3(pointer.x * 2 * parallax, pointer.y * 1.2 * parallax, 0));
       desiredTarget.current.set(0, compact ? -1.5 : -0.8, 0);
     } else {
-      const isSun = selected === 'about';
-      const p = isSun ? new THREE.Vector3() : positions.current[selected];
+      const p = positions.current[selected];
       if (!p) return;
-      const r = isSun ? SUN_RADIUS : planets.find((x) => x.id === selected)!.radius;
-      // viewDir: where the camera sits relative to the body
-      if (isSun) {
-        viewDir.current.set(0, 0, 1);
-      } else {
-        // look from the side, slightly sunward, so we see the lit half
-        // and the sun ends up off to the left (the panel is on the right)
-        outward.current.set(p.x, 0, p.z).normalize();
-        right.current.crossVectors(outward.current.clone().negate(), UP).normalize();
-        const theta = THREE.MathUtils.degToRad(100);
-        viewDir.current
-          .copy(outward.current)
-          .multiplyScalar(Math.cos(theta))
-          .addScaledVector(right.current, -Math.sin(theta))
-          .normalize();
-      }
-      const dist = isSun ? 12 : r * 6.5 + 2.5;
+      const isAstronaut = selected === 'about';
+      const r = isAstronaut ? ASTRONAUT_RADIUS : planets.find((x) => x.id === selected)!.radius;
+      // look from the side, slightly sunward, so we see the lit half
+      // and the sun ends up off to the left (the panel is on the right)
+      outward.current.set(p.x, 0, p.z).normalize();
+      right.current.crossVectors(outward.current.clone().negate(), UP).normalize();
+      const theta = THREE.MathUtils.degToRad(isAstronaut ? 120 : 100);
+      viewDir.current
+        .copy(outward.current)
+        .multiplyScalar(Math.cos(theta))
+        .addScaledVector(right.current, -Math.sin(theta))
+        .normalize();
+      const dist = isAstronaut ? 5.6 : r * 6.5 + 2.5;
       camRight.current.crossVectors(viewDir.current.clone().negate(), UP).normalize();
       if (compact) shift.current.copy(UP).multiplyScalar(-dist * 0.28);
       else shift.current.copy(camRight.current).multiplyScalar(dist * 0.24);
@@ -245,10 +216,22 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
     >
       <color attach="background" args={['#04050b']} />
       <ambientLight intensity={0.06} />
+      {/* soft fill so the astronaut and ship read even when backlit by the sun */}
+      <hemisphereLight intensity={0.55} color="#c3ccff" groundColor="#2a1f3a" />
       <SimClock selected={selected} reducedMotion={reducedMotion} timeScale={timeScale} />
       <Nebula />
       <Stars radius={120} depth={60} count={compact ? 2500 : 5000} factor={4} saturation={0.2} fade speed={reducedMotion ? 0 : 0.6} />
-      <Sun hovered={hovered} selected={selected} onHover={onHover} onSelect={onSelect} />
+      <Sun />
+      <Astronaut
+        selected={selected}
+        hovered={hovered}
+        onHover={onHover}
+        onSelect={onSelect}
+        timeScale={timeScale}
+        positions={positions}
+        portal={labelLayer as RefObject<HTMLElement>}
+        orbitScale={compact ? 0.8 : 1}
+      />
       {planets.map((p) => (
         <Planet
           key={p.id}
@@ -264,8 +247,17 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
         />
       ))}
       <AsteroidBelt inner={9.0 * scale} outer={9.7 * scale} count={compact ? 450 : 900} timeScale={timeScale} />
-      <SunLabel dimmed={!!selected} portal={labelLayer as RefObject<HTMLElement>} />
       <CameraRig selected={selected} positions={positions} compact={compact} />
+      <CameraSpace>
+        <Ship
+          selected={selected}
+          hovered={hovered}
+          onHover={onHover}
+          onSelect={onSelect}
+          compact={compact}
+          portal={labelLayer as RefObject<HTMLElement>}
+        />
+      </CameraSpace>
       <EffectComposer multisampling={4}>
         <Bloom mipmapBlur luminanceThreshold={0.9} luminanceSmoothing={0.2} intensity={0.8} radius={0.7} />
         <Vignette eskil={false} offset={0.25} darkness={0.7} />
