@@ -23,6 +23,16 @@ function useMedia(query: string) {
   return match;
 }
 
+// iPhones/iPads (including iPadOS, which reports itself as a Mac) and other
+// small or weak devices get the light renderer: it is what keeps iOS Safari
+// from dropping the WebGL context and going black.
+function isLowPowerDevice() {
+  const ua = navigator.userAgent;
+  const ios = /iP(hone|ad|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const fewCores = (navigator.hardwareConcurrency ?? 8) <= 4;
+  return ios || fewCores;
+}
+
 function hasWebGL() {
   try {
     const c = document.createElement('canvas');
@@ -40,6 +50,11 @@ export default function OrbitApp() {
   const compact = useMedia('(max-width: 767px)');
   const reducedMotion = useMedia('(prefers-reduced-motion: reduce)');
   const [webgl, setWebgl] = useState(true);
+  const [lowPowerDevice] = useState(() => typeof window !== 'undefined' && isLowPowerDevice());
+  const lowPower = compact || lowPowerDevice;
+  // remount the canvas after a lost WebGL context; give up after two losses
+  const [contextLosses, setContextLosses] = useState(0);
+  const onContextLost = useCallback(() => setContextLosses((n) => n + 1), []);
 
   useEffect(() => {
     if (!hasWebGL()) setWebgl(false);
@@ -79,7 +94,7 @@ export default function OrbitApp() {
     return () => window.removeEventListener('keydown', onKey);
   }, [selected, select]);
 
-  if (!webgl) {
+  if (!webgl || contextLosses >= 2) {
     if (typeof window !== 'undefined') location.replace('/classic');
     return null;
   }
@@ -91,12 +106,15 @@ export default function OrbitApp() {
       <div className="absolute inset-0">
         <Suspense fallback={<div className="loader">Igniting the sun…</div>}>
           <OrbitScene
+            key={contextLosses}
             selected={selected}
             hovered={hovered}
             onHover={setHovered}
             onSelect={select}
             compact={compact}
             reducedMotion={reducedMotion}
+            lowPower={lowPower}
+            onContextLost={onContextLost}
           />
         </Suspense>
       </div>

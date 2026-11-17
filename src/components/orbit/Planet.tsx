@@ -4,6 +4,7 @@ import { useMemo, useRef, type MutableRefObject, type RefObject } from 'react';
 import * as THREE from 'three';
 import type { PlanetConfig, SectionId } from './sections';
 import {
+  LOW_POWER_DEFINES,
   atmosphereFragment,
   atmosphereVertex,
   planetFragment,
@@ -22,6 +23,7 @@ type Props = {
   timeScale: MutableRefObject<number>;
   positions: MutableRefObject<Record<string, THREE.Vector3>>;
   portal: RefObject<HTMLElement>;
+  lowPower: boolean;
 };
 
 const SURFACE_TYPE = { rocky: 0, gas: 1, ice: 2 } as const;
@@ -47,7 +49,7 @@ export function OrbitPath({ distance, active, faded }: { distance: number; activ
   );
 }
 
-export function Planet({ config, scale, selected, hovered, onHover, onSelect, timeScale, positions, portal }: Props) {
+export function Planet({ config, scale, selected, hovered, onHover, onSelect, timeScale, positions, portal, lowPower }: Props) {
   const orbitRef = useRef<THREE.Group>(null);
   const bodyRef = useRef<THREE.Mesh>(null);
   const moonsRef = useRef<THREE.Group>(null);
@@ -138,11 +140,16 @@ export function Planet({ config, scale, selected, hovered, onHover, onSelect, ti
               onSelect(config.id);
             }}
           >
-            <sphereGeometry args={[config.radius, 64, 64]} />
-            <shaderMaterial vertexShader={planetVertex} fragmentShader={planetFragment} uniforms={uniforms} />
+            <sphereGeometry args={[config.radius, lowPower ? 40 : 64, lowPower ? 40 : 64]} />
+            <shaderMaterial
+              vertexShader={planetVertex}
+              fragmentShader={planetFragment}
+              uniforms={uniforms}
+              defines={lowPower ? LOW_POWER_DEFINES : undefined}
+            />
           </mesh>
           <mesh scale={1.18} raycast={() => null}>
-            <sphereGeometry args={[config.radius, 48, 48]} />
+            <sphereGeometry args={[config.radius, lowPower ? 32 : 48, lowPower ? 32 : 48]} />
             <shaderMaterial
               vertexShader={atmosphereVertex}
               fragmentShader={atmosphereFragment}

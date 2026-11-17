@@ -1,13 +1,12 @@
 import { Stars } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { useEffect, useMemo, useRef, type MutableRefObject, type RefObject } from 'react';
 import * as THREE from 'three';
 import { Astronaut, ASTRONAUT_RADIUS } from './Astronaut';
 import { Planet } from './Planet';
 import { CameraSpace, Ship } from './Ship';
 import { planets, SUN_RADIUS, type SectionId } from './sections';
-import { coronaFragment, nebulaFragment, nebulaVertex, sunFragment, sunVertex } from './shaders';
+import { LOW_POWER_DEFINES, coronaFragment, nebulaFragment, nebulaVertex, sunFragment, sunVertex } from './shaders';
 
 type SceneProps = {
   selected: SectionId | null;
@@ -16,10 +15,13 @@ type SceneProps = {
   onSelect: (id: SectionId | null) => void;
   compact: boolean;
   reducedMotion: boolean;
+  /** phones / iOS: no nebula, cheaper shaders, lower pixel ratio */
+  lowPower: boolean;
+  onContextLost: () => void;
 };
 
 /** The sun is just the light source now; I'm the astronaut. */
-function Sun() {
+function Sun({ lowPower }: { lowPower: boolean }) {
   const uniforms = useMemo(() => ({ uTime: { value: 0 }, uHover: { value: 0 } }), []);
   const corona = useMemo(() => ({ uTime: { value: 0 } }), []);
   const mesh = useRef<THREE.Mesh>(null);
@@ -33,8 +35,14 @@ function Sun() {
   return (
     <group>
       <mesh ref={mesh} raycast={() => null}>
-        <sphereGeometry args={[SUN_RADIUS, 96, 96]} />
-        <shaderMaterial vertexShader={sunVertex} fragmentShader={sunFragment} uniforms={uniforms} toneMapped={false} />
+        <sphereGeometry args={[SUN_RADIUS, lowPower ? 48 : 96, lowPower ? 48 : 96]} />
+        <shaderMaterial
+          vertexShader={sunVertex}
+          fragmentShader={sunFragment}
+          uniforms={uniforms}
+          defines={lowPower ? LOW_POWER_DEFINES : undefined}
+          toneMapped={false}
+        />
       </mesh>
       <mesh scale={1.45} raycast={() => null}>
         <sphereGeometry args={[SUN_RADIUS, 64, 64]} />
@@ -191,7 +199,16 @@ function SimClock({ selected, reducedMotion, timeScale }: { selected: SectionId 
   return null;
 }
 
-export default function OrbitScene({ selected, hovered, onHover, onSelect, compact, reducedMotion }: SceneProps) {
+export default function OrbitScene({
+  selected,
+  hovered,
+  onHover,
+  onSelect,
+  compact,
+  reducedMotion,
+  lowPower,
+  onContextLost,
+}: SceneProps) {
   const timeScale = useRef(1);
   const positions = useRef<Record<string, THREE.Vector3>>({});
   // Labels render into this fixed layer. Letting drei pick its own target
@@ -210,8 +227,14 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
     <>
     <Canvas
       camera={{ fov: compact ? 52 : 42, near: 0.1, far: 500, position: [0, 46, 90] }}
-      dpr={[1, compact ? 1.5 : 2]}
-      gl={{ antialias: false, powerPreference: 'high-performance' }}
+      dpr={lowPower ? [1, 1.25] : [1, 2]}
+      gl={{ antialias: true, powerPreference: lowPower ? 'default' : 'high-performance' }}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener('webglcontextlost', (e) => {
+          e.preventDefault();
+          onContextLost();
+        });
+      }}
       onPointerMissed={() => onSelect(null)}
     >
       <color attach="background" args={['#04050b']} />
@@ -219,9 +242,9 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
       {/* soft fill so the astronaut and ship read even when backlit by the sun */}
       <hemisphereLight intensity={0.55} color="#c3ccff" groundColor="#2a1f3a" />
       <SimClock selected={selected} reducedMotion={reducedMotion} timeScale={timeScale} />
-      <Nebula />
-      <Stars radius={120} depth={60} count={compact ? 2500 : 5000} factor={4} saturation={0.2} fade speed={reducedMotion ? 0 : 0.6} />
-      <Sun />
+      {!lowPower && <Nebula />}
+      <Stars radius={120} depth={60} count={lowPower ? 1500 : 5000} factor={4} saturation={0.2} fade speed={reducedMotion ? 0 : 0.6} />
+      <Sun lowPower={lowPower} />
       <Astronaut
         selected={selected}
         hovered={hovered}
@@ -244,9 +267,10 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
           timeScale={timeScale}
           positions={positions}
           portal={labelLayer as RefObject<HTMLElement>}
+          lowPower={lowPower}
         />
       ))}
-      <AsteroidBelt inner={9.0 * scale} outer={9.7 * scale} count={compact ? 450 : 900} timeScale={timeScale} />
+      <AsteroidBelt inner={9.0 * scale} outer={9.7 * scale} count={lowPower ? 300 : 900} timeScale={timeScale} />
       <CameraRig selected={selected} positions={positions} compact={compact} />
       <CameraSpace>
         <Ship
@@ -258,10 +282,6 @@ export default function OrbitScene({ selected, hovered, onHover, onSelect, compa
           portal={labelLayer as RefObject<HTMLElement>}
         />
       </CameraSpace>
-      <EffectComposer multisampling={4}>
-        <Bloom mipmapBlur luminanceThreshold={0.9} luminanceSmoothing={0.2} intensity={0.8} radius={0.7} />
-        <Vignette eskil={false} offset={0.25} darkness={0.7} />
-      </EffectComposer>
     </Canvas>
     <div ref={labelLayer} className="pointer-events-none absolute inset-0 overflow-hidden" />
     </>

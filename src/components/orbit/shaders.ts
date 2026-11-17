@@ -2,6 +2,9 @@
 // from 3D noise on the GPU.
 
 const noise = /* glsl */ `
+  #ifndef FBM_OCTAVES
+  #define FBM_OCTAVES 5
+  #endif
   float hash(vec3 p) {
     p = fract(p * 0.3183099 + 0.1);
     p *= 17.0;
@@ -21,7 +24,7 @@ const noise = /* glsl */ `
   float fbm(vec3 p) {
     float v = 0.0;
     float a = 0.5;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < FBM_OCTAVES; i++) {
       v += a * noise(p);
       p = p * 2.03 + vec3(1.7, 9.2, 3.1);
       a *= 0.5;
@@ -212,3 +215,6 @@ export const nebulaFragment = /* glsl */ `
     #include <colorspace_fragment>
   }
 `;
+
+/** Cheaper noise for phones and other low-power GPUs. */
+export const LOW_POWER_DEFINES = { FBM_OCTAVES: 3 };
