@@ -88,7 +88,7 @@ export function Planet({ config, scale, selected, hovered, onHover, onSelect, ti
   const moons = useMemo(
     () =>
       Array.from({ length: config.moons }, (_, i) => ({
-        r: config.radius * (1.7 + i * 0.28),
+        r: config.radius * (1.7 + i * Math.min(0.28, 1.2 / Math.max(config.moons - 1, 1))),
         size: 0.07 + ((i * 37) % 5) * 0.012,
         speed: 0.9 - i * 0.12,
         phase: i * 2.1,

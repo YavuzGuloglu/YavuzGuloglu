@@ -9,7 +9,7 @@ export const profile = {
   summary:
     'Frontend Developer with experience building large-scale, performance-critical web applications for B2C e-commerce and logistics platforms. Specialised in React and TypeScript, with hands-on delivery of custom SSR architectures, micro frontend ecosystems and data-driven user interfaces.',
   summaryExtra:
-    'Experienced in developing modular and reusable components, maintaining complex frontend systems, and working closely with backend, product and UX teams within agile environments.',
+    'Experienced in developing modular and reusable components, maintaining complex frontend systems, and working closely with backend, product and UX teams within agile environments. Lately I also build Backend-for-Frontend services in ASP.NET Core and work with AI-assisted development workflows.',
   email: 'yavuzguloglu@outlook.com',
   links: {
     github: 'https://github.com/YavuzGuloglu',
@@ -42,8 +42,12 @@ export const experience: Experience[] = [
       'Manage server state and data fetching with React Query (TanStack Query), Vuex and Axios.',
       'Build reusable UI components following Atomic Design principles, styled with SCSS and SCSS Modules.',
       'Integrated Google reCAPTCHA, i18n and LogRocket for security, localisation and monitoring.',
+      'Built Backend-for-Frontend (BFF) services in ASP.NET Core (.NET 9 and .NET 10) for PttAVM and the Comtohome Hub, so each frontend talks to a single API that calls the backend and third-party services, validates requests and returns screen-ready responses.',
+      'Kept auth tokens out of the browser: the BFF holds backend tokens in encrypted, httpOnly session cookies with sliding expiry.',
+      'Structured the BFFs in layers (Api / Application / Infrastructure) with MediatR, FluentValidation, resilient HTTP clients, Serilog logging, OpenAPI docs and xUnit tests, packaged with Docker.',
+      'Use AI-assisted development with Claude Code, guided by project-level conventions (CLAUDE.md) and build/test checks, across both the frontend and the .NET services.',
     ],
-    stack: ['React', 'TypeScript', 'Next.js', 'Vue.js', 'React Query', 'Custom SSR', 'SCSS Modules', 'LogRocket'],
+    stack: ['React', 'TypeScript', 'Next.js', 'Vue.js', 'React Query', 'Custom SSR', 'ASP.NET Core', '.NET', 'BFF', 'Claude Code'],
   },
   {
     company: 'Hepsiburada (NASDAQ: HEPS)',
@@ -102,6 +106,29 @@ export const skillGroups: SkillGroup[] = [
     title: 'Architecture',
     description: 'How large frontends are structured, rendered and shared across teams.',
     skills: ['Custom SSR', 'Micro Frontend', 'Atomic Design', 'Adaptive Render'],
+  },
+  {
+    title: 'Backend for Frontend (.NET)',
+    description: 'ASP.NET Core services that sit between the UI and the backend.',
+    skills: [
+      'C#',
+      'ASP.NET Core (.NET 9 / 10)',
+      'BFF Pattern',
+      'Layered Architecture',
+      'MediatR',
+      'FluentValidation',
+      'Entity Framework Core',
+      'Cookie-based Sessions',
+      'Serilog',
+      'xUnit',
+      'OpenAPI',
+      'Docker',
+    ],
+  },
+  {
+    title: 'AI-Assisted Development',
+    description: 'Working with AI coding agents as part of the daily workflow.',
+    skills: ['Claude Code', 'Agentic Coding Workflows', 'Project Context (CLAUDE.md)', 'Prompt Engineering'],
   },
   {
     title: 'Styling',
