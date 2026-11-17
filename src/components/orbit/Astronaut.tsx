@@ -22,6 +22,13 @@ const SUIT = '#eef0f5';
 const ACCENT = '#ff8a3d';
 const DARK = '#3a3f52';
 
+// Visor window, in three.js sphere angles. phi = PI/2 is the +z (front) side;
+// theta is measured from the top of the helmet.
+const WIN_PHI_LEN = 1.9;
+const WIN_PHI_START = Math.PI / 2 - WIN_PHI_LEN / 2;
+const WIN_THETA_START = 0.9;
+const WIN_THETA_END = 2.0;
+
 function Limb({ length, radius, color }: { length: number; radius: number; color: string }) {
   return (
     <mesh position={[0, -length / 2 - radius * 0.4, 0]}>
@@ -126,16 +133,91 @@ export function Astronaut({ selected, hovered, onHover, onSelect, timeScale, pos
           <meshStandardMaterial color={ACCENT} roughness={0.5} />
         </mesh>
 
-        {/* helmet */}
-        <mesh position={[0, 0.4, 0]}>
-          <sphereGeometry args={[0.23, 32, 32]} />
-          <meshStandardMaterial color={SUIT} roughness={0.35} />
-        </mesh>
-        {/* gold visor */}
-        <mesh position={[0, 0.41, 0.1]} scale={[1, 0.78, 0.62]}>
-          <sphereGeometry args={[0.19, 32, 32]} />
-          <meshStandardMaterial color="#5a3a10" metalness={0.8} roughness={0.12} emissive="#ffb347" emissiveIntensity={0.35} />
-        </mesh>
+        {/* helmet with a window cut out of the front, so the face shows */}
+        <group position={[0, 0.4, 0]}>
+          <mesh>
+            <sphereGeometry args={[0.23, 32, 12, 0, Math.PI * 2, 0, WIN_THETA_START]} />
+            <meshStandardMaterial color={SUIT} roughness={0.35} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[0.23, 32, 12, 0, Math.PI * 2, WIN_THETA_END, Math.PI - WIN_THETA_END]} />
+            <meshStandardMaterial color={SUIT} roughness={0.35} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh>
+            <sphereGeometry
+              args={[0.23, 32, 12, WIN_PHI_START + WIN_PHI_LEN, Math.PI * 2 - WIN_PHI_LEN, WIN_THETA_START, WIN_THETA_END - WIN_THETA_START]}
+            />
+            <meshStandardMaterial color={SUIT} roughness={0.35} side={THREE.DoubleSide} />
+          </mesh>
+          {/* dark helmet lining behind the face */}
+          <mesh>
+            <sphereGeometry args={[0.215, 24, 16]} />
+            <meshStandardMaterial color="#141826" roughness={0.9} side={THREE.BackSide} />
+          </mesh>
+
+          {/* the face */}
+          <mesh position={[0, -0.01, 0.02]}>
+            <sphereGeometry args={[0.165, 32, 24]} />
+            <meshStandardMaterial color="#f1c7a0" roughness={0.7} />
+          </mesh>
+          {/* hair */}
+          <mesh position={[0, 0.035, 0.0]}>
+            <sphereGeometry args={[0.172, 32, 16, 0, Math.PI * 2, 0, 1.05]} />
+            <meshStandardMaterial color="#2b1d16" roughness={0.9} />
+          </mesh>
+          {/* eyes */}
+          {[-0.055, 0.055].map((x) => (
+            <mesh key={x} position={[x, 0.01, 0.17]} scale={[1, 1.35, 0.6]}>
+              <sphereGeometry args={[0.019, 12, 12]} />
+              <meshStandardMaterial color="#1a1410" roughness={0.3} />
+            </mesh>
+          ))}
+          {/* eyebrows */}
+          {[-0.055, 0.055].map((x) => (
+            <mesh key={x} position={[x, 0.058, 0.162]} rotation={[0, 0, x > 0 ? -0.15 : 0.15]}>
+              <boxGeometry args={[0.045, 0.01, 0.01]} />
+              <meshStandardMaterial color="#2b1d16" />
+            </mesh>
+          ))}
+          {/* smile */}
+          <mesh position={[0, -0.04, 0.163]} rotation={[0, 0, Math.PI]}>
+            <torusGeometry args={[0.035, 0.0075, 6, 16, Math.PI]} />
+            <meshStandardMaterial color="#8a3b2a" roughness={0.6} />
+          </mesh>
+          {/* cheeks */}
+          {[-0.09, 0.09].map((x) => (
+            <mesh key={x} position={[x, -0.03, 0.14]} scale={[1, 0.7, 0.4]}>
+              <sphereGeometry args={[0.024, 10, 10]} />
+              <meshStandardMaterial color="#f29a86" roughness={0.8} transparent opacity={0.7} />
+            </mesh>
+          ))}
+
+          {/* tinted glass visor over the window */}
+          <mesh>
+            <sphereGeometry
+              args={[0.236, 32, 16, WIN_PHI_START, WIN_PHI_LEN, WIN_THETA_START, WIN_THETA_END - WIN_THETA_START]}
+            />
+            <meshStandardMaterial
+              color="#ffcf7a"
+              metalness={0.6}
+              roughness={0.05}
+              transparent
+              opacity={0.28}
+              depthWrite={false}
+            />
+          </mesh>
+          {/* visor rim */}
+          <mesh rotation={[0, 0, 0]}>
+            <sphereGeometry
+              args={[0.238, 32, 2, WIN_PHI_START - 0.06, WIN_PHI_LEN + 0.12, WIN_THETA_START - 0.06, 0.06]}
+            />
+            <meshStandardMaterial color={ACCENT} roughness={0.5} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[0.238, 32, 2, WIN_PHI_START - 0.06, WIN_PHI_LEN + 0.12, WIN_THETA_END, 0.06]} />
+            <meshStandardMaterial color={ACCENT} roughness={0.5} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
         {/* helmet lamp */}
         <mesh position={[0.2, 0.47, 0.06]}>
           <cylinderGeometry args={[0.035, 0.035, 0.05, 12]} />
