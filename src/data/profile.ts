@@ -4,12 +4,12 @@
 export const profile = {
   name: 'Yavuz Güloğlu',
   initials: 'YG',
-  title: 'Front-End Engineer',
+  title: 'Frontend Developer',
   location: 'İstanbul, Türkiye',
   summary:
-    'I build complex web applications with React, TypeScript and modern JavaScript, with a focus on seamless user experiences. Most of my work is large-scale e-commerce: checkout flows, payment integration and micro frontend architecture used by hundreds of thousands of people every day.',
+    'Frontend Developer with experience building large-scale, performance-critical web applications for B2C e-commerce and logistics platforms. Specialised in React and TypeScript, with hands-on delivery of custom SSR architectures, micro frontend ecosystems and data-driven user interfaces.',
   summaryExtra:
-    'Experienced in agile workflows, I have maintained large-scale apps, fixed cross-browser issues and integrated RESTful APIs. I enjoy working closely with UX designers and I am always eager to learn what is next in frontend.',
+    'Experienced in developing modular and reusable components, maintaining complex frontend systems, and working closely with backend, product and UX teams within agile environments.',
   email: 'yavuzguloglu@outlook.com',
   links: {
     github: 'https://github.com/YavuzGuloglu',
@@ -29,14 +29,21 @@ export type Experience = {
 
 export const experience: Experience[] = [
   {
-    company: 'PttAVM',
-    role: 'Frontend Developer',
+    company: 'PttAVM / PtteM Technology',
+    role: 'Frontend Developer · PttAVM & Comtohome Cargo',
     location: 'İstanbul',
     period: 'May 2025 – Present',
     summary:
-      'Frontend development focusing on e-commerce solutions and user experience optimization.',
-    highlights: [],
-    stack: [],
+      'Deliver performance-critical user flows on the PttAVM B2C e-commerce platform, including homepage, basket and payment, using React and TypeScript on a custom SSR architecture.',
+    highlights: [
+      'Developed a modular, data-driven cargo tracking application for the Comtohome project using the Next.js App Router with API Routes and a modular service layer.',
+      'Maintain and modernise Vue.js-based B2B logistics dashboards, migrating them toward a more current frontend stack.',
+      'Implemented custom SSR with React Router v6 and adaptive rendering across platforms.',
+      'Manage server state and data fetching with React Query (TanStack Query), Vuex and Axios.',
+      'Build reusable UI components following Atomic Design principles, styled with SCSS and SCSS Modules.',
+      'Integrated Google reCAPTCHA, i18n and LogRocket for security, localisation and monitoring.',
+    ],
+    stack: ['React', 'TypeScript', 'Next.js', 'Vue.js', 'React Query', 'Custom SSR', 'SCSS Modules', 'LogRocket'],
   },
   {
     company: 'Hepsiburada (NASDAQ: HEPS)',
@@ -44,15 +51,14 @@ export const experience: Experience[] = [
     location: 'İstanbul',
     period: 'Dec 2021 – May 2025',
     summary:
-      'Worked on the checkout team of a leading Turkish e-commerce company: a SPA with six routes including cart, delivery, payment, order summary and success pages.',
+      'Developed and maintained core purchase flows within a high-traffic SPA, covering Basket, Checkout and Success journeys for web and mobile (WebView) platforms.',
     highlights: [
-      'Spearheaded the redevelopment of the New Checkout (New OPC) with React, TypeScript and Zustand. Load times improved by 30% and customer satisfaction scores rose significantly.',
-      'Built and maintained micro frontends such as Address Select, Coupons and Hepsimat with Voltran, used across many pages.',
-      'Built shared components for internal teams and implemented web and mobile (WebView) designs from Figma.',
-      'Ran A/B tests with Statsig and event tracking with Davinci.',
-      'Full-stack work with Vue and Node.js on back-office projects.',
+      'Led the redevelopment of the New Checkout (OPC) with React, TypeScript and Zustand, reducing load times by 30% and improving customer satisfaction.',
+      'Contributed to the Voltran micro frontend ecosystem, building and maintaining shared modules including Address Select, Coupons and Hepsimat across multiple product pages.',
+      "Applied Statsig for A/B testing and Davinci, Hepsiburada's internal event library, for event handling.",
+      'Partnered with backend and product teams to deliver scalable, performant experiences across critical checkout journeys.',
     ],
-    stack: ['React', 'TypeScript', 'Redux', 'Zustand', 'Voltran', 'Cypress', 'Webpack', 'SCSS'],
+    stack: ['React', 'TypeScript', 'Redux', 'Zustand', 'Voltran', 'Statsig', 'Cypress', 'Webpack', 'SCSS'],
   },
   {
     company: 'Moor Software Engineering',
@@ -60,20 +66,21 @@ export const experience: Experience[] = [
     location: 'İstanbul',
     period: 'Jan 2021 – Dec 2021',
     summary:
-      'Delivered the frontend of turnkey and support projects for insurance companies and international clients.',
+      'Delivered the frontend of turnkey and support projects for insurance clients and international customers.',
     highlights: [
-      'Responsive design and generic, reusable component architecture.',
-      'Build and deploy operations within Scrum teams.',
+      'Built responsive interfaces and reusable components with React Hooks, Redux and Context API.',
+      'Produced structured, reusable UI pages and logic within Scrum-based workflows.',
+      'Supported build, deployment and delivery processes.',
     ],
-    stack: ['React', 'Redux', 'Context API', 'SCSS', 'Bootstrap'],
+    stack: ['React', 'Redux', 'Context API', 'JavaScript', 'SCSS', 'Reactstrap', 'Bootstrap'],
   },
   {
     company: 'MapCodeX – RK Soft',
     role: 'Software Developer (Intern)',
     location: 'Ankara · ODTÜ Teknokent',
     period: 'Jun 2019 – Aug 2019',
-    summary: 'Built the company website end to end, both backend and frontend.',
-    highlights: [],
+    summary: 'Developed a full-stack web application using .NET MVC, Entity Framework and Bootstrap.',
+    highlights: ['Worked with HTML5, CSS and relational databases (MS SQL, MySQL).'],
     stack: ['.NET MVC', 'Entity Framework', 'Bootstrap', 'MS SQL', 'MySQL'],
   },
 ];
@@ -82,35 +89,29 @@ export type SkillGroup = { title: string; description: string; skills: string[] 
 
 export const skillGroups: SkillGroup[] = [
   {
-    title: 'Frontend Development',
-    description:
-      'Complex web applications with React, TypeScript and modern JavaScript, built together with UX designers.',
-    skills: [
-      'React',
-      'Next.js',
-      'TypeScript',
-      'JavaScript',
-      'HTML5',
-      'CSS3',
-      'SCSS/Sass',
-      'Redux',
-      'Zustand',
-      'Context API',
-      'REST API',
-      'Responsive Design',
-    ],
+    title: 'Frontend',
+    description: 'Core languages and frameworks I build with every day.',
+    skills: ['React', 'TypeScript', 'JavaScript', 'Next.js', 'Vue.js', 'HTML'],
   },
   {
-    title: 'Tools & Testing',
-    description:
-      'Modern workflows: version control, build tooling, testing and deployment for maintainable code.',
-    skills: ['Git', 'Webpack', 'Cypress', 'Postman', 'Node.js', 'Micro Frontend', 'Voltran', 'Material UI', 'Bootstrap'],
+    title: 'State Management',
+    description: 'Server state, client state and data fetching.',
+    skills: ['React Query (TanStack Query)', 'Redux', 'Zustand', 'Context API', 'Vuex'],
   },
   {
-    title: 'E-commerce & UX',
-    description:
-      'Checkout flows, payment integration and performance for large-scale applications.',
-    skills: ['Checkout Flow', 'Payment Integration', 'Shopping Cart', 'A/B Testing', 'Cross-browser', 'Performance'],
+    title: 'Architecture',
+    description: 'How large frontends are structured, rendered and shared across teams.',
+    skills: ['Custom SSR', 'Micro Frontend', 'Atomic Design', 'Adaptive Render'],
+  },
+  {
+    title: 'Styling',
+    description: 'Maintainable styles for component-driven UIs.',
+    skills: ['SCSS', 'SCSS Modules', 'CSS', 'Bootstrap', 'Reactstrap'],
+  },
+  {
+    title: 'Tooling & Practices',
+    description: 'Build tooling, code quality, monitoring and ways of working.',
+    skills: ['Webpack', 'Babel', 'Biome', 'ESLint', 'Prettier', 'Husky', 'Git', 'Postman', 'REST API', 'LogRocket', 'Scrum'],
   },
 ];
 

@@ -53,11 +53,16 @@ export default function OrbitApp() {
 
   // deep links: /#projects opens straight on that planet
   useEffect(() => {
-    const id = location.hash.slice(1) as SectionId;
-    if (ORDER.includes(id)) {
-      const t = setTimeout(() => select(id), 900);
-      return () => clearTimeout(t);
-    }
+    const fromHash = () => {
+      const id = location.hash.slice(1) as SectionId;
+      if (ORDER.includes(id)) select(id);
+    };
+    const t = setTimeout(fromHash, 900);
+    window.addEventListener('hashchange', fromHash);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('hashchange', fromHash);
+    };
   }, [select]);
 
   useEffect(() => {
